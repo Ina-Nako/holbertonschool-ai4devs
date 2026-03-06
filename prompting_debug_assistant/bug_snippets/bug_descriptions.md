@@ -6,7 +6,7 @@
 
 ### Intended Behavior
 
-Return the last `n` items of a list.
+Return the last `n` items of a list. For example, `last_n_items([1, 2, 3, 4, 5], 2)` should return `[4, 5]`, and `last_n_items([1, 2, 3, 4, 5], 5)` should return the entire list `[1, 2, 3, 4, 5]`.
 
 ### Issue Type
 
@@ -22,7 +22,7 @@ The slice uses `len(items) - n + 1` instead of `len(items) - n`. The extra `+ 1`
 
 ### Intended Behavior
 
-Compute the average of an array of numeric scores.
+Compute the average of an array of numeric scores. For example, `averageScore([10, 20, 30])` should return `20` and `averageScore([100])` should return `100`.
 
 ### Issue Type
 
@@ -38,7 +38,7 @@ The loop condition `i <= scores.length` should be `i < scores.length`. The extra
 
 ### Intended Behavior
 
-Return the maximum value in a list of numbers.
+Return the maximum value in a list of numbers, including lists with negative values. For example, `find_max([3, 7, 2, 8, 1])` should return `8` and `find_max([-5, -1, -10, -3])` should return `-1`.
 
 ### Issue Type
 
@@ -54,7 +54,7 @@ Logical error (wrong initial value).
 
 ### Intended Behavior
 
-Remove duplicate values from an array while preserving insertion order.
+Remove duplicate values from an array while preserving insertion order. For example, `removeDuplicates([1, 2, 2, 3, 1])` should return `[1, 2, 3]`, and it should correctly handle mixed types like `[false, 0, "", null]` without collapsing distinct values.
 
 ### Issue Type
 
@@ -70,7 +70,7 @@ Misuse of data types (object property coercion) and missing state update.
 
 ### Intended Behavior
 
-Parse a JSON configuration string and extract `timeout`, `retries`, and `verbose` settings.
+Parse a JSON configuration string and return a dictionary with `timeout`, `retries`, and `verbose` settings. For valid input the function should return the extracted values, and for missing keys or malformed JSON it should handle errors gracefully instead of crashing.
 
 ### Issue Type
 
@@ -86,7 +86,7 @@ The function accesses nested keys directly without checking they exist and calls
 
 ### Intended Behavior
 
-Reverse a string in place.
+Reverse a string in place so that the characters appear in the opposite order. For example, `"hello"` should become `"olleh"` and `"abcd"` should become `"dcba"`.
 
 ### Issue Type
 
