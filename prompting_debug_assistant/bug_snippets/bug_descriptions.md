@@ -5,7 +5,7 @@
 
 **Issue Type**: Off-by-one error and boundary condition.
 
-**What's Wrong**: 
+**Notes**: 
 - The function correctly handles most cases, but the boundary check `n > len(items)` returns an empty list when `n` equals `len(items)`, which should return the entire list.
 - Expected: `get_last_n_items([1,2,3,4,5], 5)` → `[1,2,3,4,5]`
 - Actual: Returns `[]`
@@ -21,7 +21,7 @@
 
 **Issue Type**: Missing `await` keyword on Promise.
 
-**What's Wrong**: 
+**Notes**: 
 - Line 4: `const data = response.json();` returns a Promise, not the actual JSON object.
 - The code tries to access `data.name` and `data.email` on a Promise, causing `undefined` output.
 - Should be: `const data = await response.json();`
@@ -37,7 +37,7 @@
 
 **Issue Type**: Runtime exception (ZeroDivisionError) and missing input validation.
 
-**What's Wrong**: 
+**Notes**: 
 - If `filter_outliers(scores, 50)` is called with all values filtered out, `filtered` becomes empty.
 - `calculate_average([])` attempts division by zero: `total / count` where `count = 0`.
 - Raises: `ZeroDivisionError: division by zero`
@@ -53,7 +53,7 @@
 
 **Issue Type**: Off-by-one error in loop boundary.
 
-**What's Wrong**: 
+**Notes**: 
 - Line 5: `for (int i = 0; i <= values.length; i++)` uses `<=` instead of `<`.
 - This causes an `ArrayIndexOutOfBoundsException` when accessing `stock[values.length]`.
 - The `stock` array has size 10, and `values.length` is 5, so `stock[5]` is valid—but `values[5]` doesn't exist!
