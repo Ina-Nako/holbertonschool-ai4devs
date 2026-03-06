@@ -1,16 +1,22 @@
-def get_last_n_items(items, n):
-    """Return the last n items from a list."""
-    if n <= 0 or n > len(items):
-        return []
-    
-    start_index = len(items) - n
-    return items[start_index:]
+"""Bug 1 - Off-by-one slicing
 
-def main():
-    my_list = [1, 2, 3, 4, 5]
-    print(get_last_n_items(my_list, 3))  # Expected: [3, 4, 5]
-    print(get_last_n_items(my_list, 5))  # Expected: [1, 2, 3, 4, 5]
-    print(get_last_n_items(my_list, 0))  # Expected: []
+Intended behavior: return the last n items of a list.
+Issue: returns n+1 items when n < len(items).
+"""
+
+from typing import List, TypeVar
+
+T = TypeVar("T")
+
+
+def last_n(items: List[T], n: int) -> List[T]:
+    if n <= 0:
+        return []
+
+    start = len(items) - n - 1  # BUG: off-by-one; should be len(items) - n
+    return items[start:]
+
 
 if __name__ == "__main__":
-    main()
+    data = [1, 2, 3, 4, 5]
+    print(last_n(data, 2))  # expected [4, 5] but returns [3, 4, 5]
