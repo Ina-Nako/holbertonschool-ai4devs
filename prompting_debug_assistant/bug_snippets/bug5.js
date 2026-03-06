@@ -1,6 +1,15 @@
-function concatenateNumbers(a, b) {
-  // This will perform string concatenation instead of addition
-  return a + "" + b; // Should be a + b for numerical sum
+// Bug 5 - Syntax error (async/await misuse)
+// Intended behavior: fetch user JSON and return the user's name uppercased.
+
+async function fetchUserNameUpper(userId) {
+  const url = `https://api.example.com/users/${userId}`;
+
+  // BUG: 'await' is used inside a non-async function.
+  const response = await fetch(url);
+  const user = await response.json();
+
+  return user.name.toUpperCase();
 }
 
-console.log("Result:", concatenateNumbers(5, 10)); // Expected: 15, Actual: "510"
+// Example usage (won't run because of the syntax error above)
+console.log(fetchUserNameUpper(42));

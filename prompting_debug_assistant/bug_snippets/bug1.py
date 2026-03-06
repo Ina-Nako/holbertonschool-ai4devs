@@ -1,11 +1,22 @@
-def calculate_average(numbers):
-    total = 0
-    for num in numbers:
-        total += num
-    if len(numbers) > 0:
-        return total / len(numbers)
-    else:
-        return 0
+"""Bug 1 - Off-by-one slicing
 
-# This line is intentionally missing a closing parenthesis to cause a SyntaxError
-print("The average is:", calculate_average([10, 20, 30])
+Intended behavior: return the last n items of a list.
+Issue: returns n+1 items when n < len(items).
+"""
+
+from typing import List, TypeVar
+
+T = TypeVar("T")
+
+
+def last_n(items: List[T], n: int) -> List[T]:
+    if n <= 0:
+        return []
+
+    start = len(items) - n - 1  # BUG: off-by-one; should be len(items) - n
+    return items[start:]
+
+
+if __name__ == "__main__":
+    data = [1, 2, 3, 4, 5]
+    print(last_n(data, 2))  # expected [4, 5] but returns [3, 4, 5]

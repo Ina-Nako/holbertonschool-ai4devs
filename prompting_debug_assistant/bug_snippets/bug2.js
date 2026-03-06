@@ -1,12 +1,18 @@
-function findMax(arr) {
-  let max = 0; // Should be initialized to the first element or -Infinity
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i] > max) {
-      max = arr[i];
+// Bug 2 - Logical error (dedupe)
+// Intended behavior: remove duplicates and return ascending numbers.
+
+function dedupeAndSort(numbers) {
+  const result = [];
+
+  for (let i = 0; i < numbers.length; i++) {
+    // BUG: this adds the number only if it is already present.
+    if (result.includes(numbers[i])) {
+      result.push(numbers[i]);
     }
   }
-  return max;
+
+  return result.sort((a, b) => a - b);
 }
 
-// This will incorrectly return 0 because all numbers are negative
-console.log("Max value:", findMax([-1, -5, -3]));
+const input = [3, 1, 2, 3, 2, 4, 1];
+console.log(dedupeAndSort(input)); // expected [1,2,3,4]
