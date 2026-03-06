@@ -1,6 +1,5 @@
 // Bug 2 - Logical error (dedupe)
 // Intended behavior: remove duplicates and return ascending numbers.
-// Issue Type: Logical error (incorrect condition in implementation). 
 
 function dedupeAndSort(numbers) {
   const result = [];

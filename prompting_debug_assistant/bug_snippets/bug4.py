@@ -1,7 +1,7 @@
 """Bug 4 - Data type misuse
 
 Intended behavior: sum values in a dict where values are numeric strings.
-Issue Type: uses string concatenation instead of numeric addition.
+Issue: uses string concatenation instead of numeric addition.
 """
 
 from typing import Dict
