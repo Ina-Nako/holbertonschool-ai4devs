@@ -101,3 +101,24 @@ parse_config('{"settings": timeout: 30}')
 **Why It Deviates**: The function directly indexes into nested dictionary keys (`config["settings"]["retries"]`, etc.) without checking whether those keys exist. It also calls `json.loads()` without a `try/except` block. Any missing key raises `KeyError`, and any malformed JSON string raises `json.JSONDecodeError`. Adding `try/except` handling and using `dict.get()` with default values would make it robust.
 
 **Why It's Critical**: Configuration parsing sits at the boundary between external input and application logic — it is one of the first things that runs and everything downstream depends on it. An unhandled crash here means the entire application fails to start or aborts mid-operation with no user-friendly message. In a deployed service, malformed or incomplete config files are common (manual edits, partial deployments, environment differences), so this function must be resilient. Without proper error handling, debugging becomes harder because the raw `KeyError` or `JSONDecodeError` traceback gives no context about which config file or field caused the failure.
+
+---
+
+### Bug 6 – bug6.c
+
+**Intended Behavior**: Reverse a string in place so that the characters appear in the opposite order.
+
+**Issue Type**: Off-by-one error in loop boundary.
+
+**Expected Example**:
+```
+"hello" → "olleh"
+"abcd"  → "dcba"
+"a"     → "a"
+```
+
+**Actual Behavior**: Strings with an even length (e.g., `"abcd"`) are not fully reversed — the two middle characters get swapped back to their original positions, producing `"abcd"` instead of `"dcba"`.
+
+**Why It Deviates**: The loop condition `i <= len / 2` allows one extra iteration compared to the correct `i < len / 2`. For even-length strings the extra pass re-swaps the two middle characters, undoing the earlier swap and leaving them in their original positions. For odd-length strings the extra iteration swaps the middle character with itself, which is harmless but wasteful. Changing `<=` to `<` eliminates the redundant swap and produces the correct result.
+
+**Why It's Critical**: String reversal is a foundational operation used in algorithms (palindrome checks, encoding routines, parsers). A subtle off-by-one here produces output that *looks* almost correct — only the middle portion is wrong — making it very hard to catch in manual testing. In C specifically, this kind of boundary error is a common source of buffer overflows and memory corruption when combined with other pointer arithmetic, so developing the discipline to get loop bounds exactly right is essential.
