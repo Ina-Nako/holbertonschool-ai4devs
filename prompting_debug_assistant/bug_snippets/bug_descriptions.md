@@ -19,3 +19,13 @@
 **Intended Behavior**: Calculate the sum of all values in a dictionary where the values are numbers stored as strings.  
 **Issue Type**: Data type misuse (numeric handling error).  
 **Notes**: Values are numeric strings, but `total` is initialized as a string and `+=` performs concatenation (e.g. "10" + "5" -> "105"). `total` should be numeric (e.g. `0`) and each `value` should be converted (e.g. `int(value)`) before adding.
+
+## Bug 5 – bug5.js
+**Intended Behavior**: Fetch user data from an API endpoint and return the user's name in uppercase. The function is intended to use `async/await` so callers can `await` the final string result.  
+**Issue Type**: Syntax error (async/await misuse).  
+**Notes**: `await` can only be used inside an `async` function (or at the top level in specific module contexts). Here, `await fetch(...)` is inside a regular function, which causes a syntax error. Fix by declaring `async function fetchUserNameUpper(...) { ... }` (and then awaiting it from the caller).
+
+## Bug 6 – bug6.py
+**Intended Behavior**: Find the first pair of consecutive numbers in a list that sum to a target value.  
+**Issue Type**: Logic error (infinite loop).  
+**Notes**: The loop never increments the index when there is no match, so `i` stays the same and the `while` condition never changes (infinite loop). Fix by incrementing `i` on every iteration (and only returning when a match is found).
