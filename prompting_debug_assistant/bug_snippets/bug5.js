@@ -1,7 +1,7 @@
 // Bug 5 - Syntax error (async/await misuse)
 // Intended behavior: fetch user JSON and return the user's name uppercased.
 
-async function fetchUserNameUpper(userId) {
+function fetchUserNameUpper(userId) {
   const url = `https://api.example.com/users/${userId}`;
 
   // BUG: 'await' is used inside a non-async function.
