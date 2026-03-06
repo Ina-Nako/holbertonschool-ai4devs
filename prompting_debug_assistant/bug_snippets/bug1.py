@@ -1,7 +1,7 @@
 """Bug 1 - Off-by-one slicing
 
 Intended behavior: return the last n items of a list.
-Issue: returns n+1 items when n < len(items).
+Issue Type: Off-by-one error. 
 """
 
 from typing import List, TypeVar

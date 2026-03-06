@@ -1,7 +1,7 @@
 """Bug 6 - Loop logic issue (infinite loop)
 
 Intended behavior: find the first pair of consecutive numbers that sum to target.
-Issue: index increments only on match.
+Issue Type: Logic error (infinite loop). 
 """
 
 from typing import List, Optional, Tuple

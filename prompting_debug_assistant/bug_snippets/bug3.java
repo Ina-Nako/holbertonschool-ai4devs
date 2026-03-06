@@ -1,5 +1,6 @@
 // Bug 3 - Runtime exception (NullPointerException)
 // Intended behavior: compute average string length ignoring nulls.
+// Issue Type: Runtime exception (NullPointerException).  
 
 import java.util.Arrays;
 import java.util.List;
