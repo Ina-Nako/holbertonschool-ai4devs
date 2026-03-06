@@ -76,6 +76,8 @@ removeDuplicates(["a", "b", "a"])        → ["a", "b"]
 
 **Why It Deviates**: Two problems combine. First, `seen[arr[i]]` is checked but never set to `true`, so the "already seen" guard never activates and every element is pushed — duplicates included. Second, even if the flag were set, plain-object keys are coerced to strings, meaning distinct values like `false`, `0`, `""`, and `null` can collide (e.g., `String(false) === "false"` while `String(null) === "null"`, but `!seen[0]` is truthy regardless because `"0"` was never stored). Using a `Set` instead of an object and properly adding items to it would fix both issues.
 
+**Why It's Critical**: This bug is especially dangerous because it fails silently — the function returns an array without errors, giving the caller false confidence that duplicates were removed. In production, this could lead to data integrity issues such as duplicate database entries, repeated API calls, or inflated analytics. The type-coercion aspect adds a second layer of risk: even after fixing the missing `seen` update, code that handles mixed types (e.g., form inputs, parsed query parameters) would still produce subtly wrong results that are difficult to trace.
+
 ---
 
 ### Bug 5 – bug5.py
@@ -98,21 +100,4 @@ parse_config('{"settings": timeout: 30}')
 
 **Why It Deviates**: The function directly indexes into nested dictionary keys (`config["settings"]["retries"]`, etc.) without checking whether those keys exist. It also calls `json.loads()` without a `try/except` block. Any missing key raises `KeyError`, and any malformed JSON string raises `json.JSONDecodeError`. Adding `try/except` handling and using `dict.get()` with default values would make it robust.
 
----
-
-### Bug 6 – bug6.c
-
-**Intended Behavior**: Reverse a string in place so that the characters appear in the opposite order.
-
-**Issue Type**: Off-by-one error in loop boundary.
-
-**Expected Example**:
-```
-"hello" → "olleh"
-"abcd"  → "dcba"
-"a"     → "a"
-```
-
-**Actual Behavior**: Strings with an even length (e.g., `"abcd"`) are not fully reversed — the two middle characters get swapped back to their original positions, producing `"abcd"` instead of `"dcba"`.
-
-**Why It Deviates**: The loop condition `i <= len / 2` allows one extra iteration compared to the correct `i < len / 2`. For even-length strings the extra pass re-swaps the two middle characters, undoing the earlier swap and leaving them in their original positions. For odd-length strings the extra iteration swaps the middle character with itself, which is harmless but wasteful. Changing `<=` to `<` eliminates the redundant swap and produces the correct result.
+**Why It's Critical**: Configuration parsing sits at the boundary between external input and application logic — it is one of the first things that runs and everything downstream depends on it. An unhandled crash here means the entire application fails to start or aborts mid-operation with no user-friendly message. In a deployed service, malformed or incomplete config files are common (manual edits, partial deployments, environment differences), so this function must be resilient. Without proper error handling, debugging becomes harder because the raw `KeyError` or `JSONDecodeError` traceback gives no context about which config file or field caused the failure.
