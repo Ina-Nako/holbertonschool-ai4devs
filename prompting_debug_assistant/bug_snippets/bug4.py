@@ -1,21 +1,10 @@
-"""Bug 4 - Data type misuse
+def get_first_n_elements(my_list, n):
+    # This loop will return n-1 elements if n is valid, or an empty list if n=0
+    result = []
+    for i in range(n - 1): # Should be range(n)
+        if i < len(my_list):
+            result.append(my_list[i])
+    return result
 
-Intended behavior: sum values in a dict where values are numeric strings.
-Issue: uses string concatenation instead of numeric addition.
-"""
-
-from typing import Dict
-
-
-def sum_string_values(values: Dict[str, str]) -> int:
-    total = ""  # BUG: should start at 0
-
-    for key, value in values.items():
-        total += value  # BUG: concatenates strings
-
-    return total  # BUG: returns a string, not an int
-
-
-if __name__ == "__main__":
-    d = {"apples": "10", "oranges": "5", "pears": "2"}
-    print(sum_string_values(d))  # expected 17 but returns "1052"
+print(get_first_n_elements([10, 20, 30, 40, 50], 3)) # Expected: [10, 20, 30], Actual: [10, 20]
+print(get_first_n_elements([1, 2], 0)) # Expected: [], Actual: []

@@ -1,26 +1,9 @@
-// Bug 3 - Runtime exception (NullPointerException)
-// Intended behavior: compute average string length ignoring nulls.
-
-import java.util.Arrays;
-import java.util.List;
-
-class AverageStringLength {
-    public static double averageLength(List<String> items) {
-        int total = 0;
-        int count = 0;
-
-        for (String str : items) {
-            // BUG: str may be null; calling length() can throw NullPointerException
-            total += str.length();
-            count += 1;
-        }
-
-        if (count == 0) return 0.0;
-        return (double) total / count;
-    }
-
+public class ArrayBug {
     public static void main(String[] args) {
-        List<String> items = Arrays.asList("hi", null, "world");
-        System.out.println(averageLength(items));
+        int[] numbers = {1, 2, 3, 4, 5};
+        // This loop tries to access an index beyond the array's bounds
+        for (int i = 0; i <= numbers.length; i++) {
+            System.out.println(numbers[i]);
+        }
     }
 }
