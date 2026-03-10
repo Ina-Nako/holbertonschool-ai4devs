@@ -1,13 +1,18 @@
-function averageScore(scores) {
-    // Return the average of an array of numbers
-    let sum = 0;
-    for (let i = 0; i <= scores.length; i++) {
-        sum += scores[i];
+// Bug 2 - Logical error (dedupe)
+// Intended behavior: remove duplicates and return ascending numbers.
+
+function dedupeAndSort(numbers) {
+  const result = [];
+
+  for (let i = 0; i < numbers.length; i++) {
+    // BUG: this adds the number only if it is already present.
+    if (result.includes(numbers[i])) {
+      result.push(numbers[i]);
     }
-    return sum / scores.length;
+  }
+
+  return result.sort((a, b) => a - b);
 }
 
-// Test cases
-console.log(averageScore([10, 20, 30]));      // Expected: 20
-console.log(averageScore([100]));              // Expected: 100
-console.log(averageScore([5, 15, 25, 35]));   // Expected: 20
+const input = [3, 1, 2, 3, 2, 4, 1];
+console.log(dedupeAndSort(input)); // expected [1,2,3,4]
