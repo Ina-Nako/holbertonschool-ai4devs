@@ -13,7 +13,6 @@ An inclusive audiobook platform designed to empower blind users, people with dys
 - Offline listening and cross-device progress tracking
 - Bookmarking and note-taking via voice
 - Free tier, premium subscription, and one-time purchase options
-- Institutional/corporate plans for employee benefits
 
 ## Users
 - Blind Users: need full screen reader support and audio-first experience
