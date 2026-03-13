@@ -1,0 +1,19 @@
+graph TD
+  A[Client Web/Mobile App] --> B[API Gateway]
+  B --> C[Auth Service]
+  B --> D[Order Service]
+  B --> E[Inventory Service]
+  B --> F[Payment Service]
+  B --> G[Reporting Service]
+  B --> H[Notification Service]
+
+  D --> E
+  D --> F
+  D --> G
+
+  C --> I[(Auth DB)]
+  D --> J[(Orders DB)]
+  E --> K[(Inventory DB)]
+  F --> L[(Payments DB)]
+  G --> M[(Analytics DB)]
+  H --> N[(Notifications DB)]
