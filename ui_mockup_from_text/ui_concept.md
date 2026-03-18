@@ -4,11 +4,8 @@
 Design an accessible, audio-first interface that lets users discover, play, and manage audiobooks easily across devices. The UI prioritizes inclusion for blind users and people with dyslexia, while also supporting busy users who need quick, efficient listening experiences.
 
 ## Users
-- Blind Users: navigate fully with screen readers, voice commands, and clear audio feedback
-- Users with Dyslexia: use dyslexia-friendly typography, high contrast, and audio alternatives to text
-- Busy Professionals: access quick summaries and continue listening seamlessly on mobile
+- Blind/Dyslexia Users: navigate fully with screen readers, voice commands, and clear audio feedback
 - Authors/Creators: upload and manage audiobook content, and track performance
-- Admins: moderate content, manage users, and review platform-level analytics
 
 ## Core Screens
 - Home/Dashboard: personalized recommendations, continue listening, and quick access to recent titles
