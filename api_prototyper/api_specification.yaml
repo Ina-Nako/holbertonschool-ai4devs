@@ -1,0 +1,755 @@
+openapi: 3.0.3
+info:
+  title: iCan API
+  version: 1.0.0
+  description: |
+    OpenAPI specification for iCan, an inclusive audiobook platform.
+
+servers:
+  - url: https://api.ican.example.com/v1
+
+tags:
+  - name: Auth
+  - name: Catalog
+  - name: Playback
+  - name: Bookmarks
+  - name: Creator
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Sign in and obtain JWTs
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /audiobooks:
+    get:
+      tags: [Catalog]
+      summary: List and search audiobooks
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+        - in: query
+          name: q
+          description: Search term (title/author/topic)
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+        - in: query
+          name: language
+          description: ISO language code filter
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 10
+        - in: query
+          name: durationMinSeconds
+          schema:
+            type: integer
+            minimum: 0
+        - in: query
+          name: durationMaxSeconds
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: A paginated list of audiobooks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AudiobookListResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /audiobooks/{audiobookId}:
+    get:
+      tags: [Catalog]
+      summary: Get audiobook details
+      parameters:
+        - $ref: '#/components/parameters/AudiobookId'
+      responses:
+        '200':
+          description: Audiobook details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Audiobook'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /audiobooks/{audiobookId}/license:
+    post:
+      tags: [Playback]
+      summary: Get a time-limited playback license (DRM)
+      parameters:
+        - $ref: '#/components/parameters/AudiobookId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseRequest'
+      responses:
+        '200':
+          description: License issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /me/progress/{audiobookId}:
+    put:
+      tags: [Playback]
+      summary: Update playback progress for an audiobook
+      parameters:
+        - $ref: '#/components/parameters/AudiobookId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgressUpdateRequest'
+      responses:
+        '200':
+          description: Progress updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Progress'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /audiobooks/{audiobookId}/bookmarks:
+    get:
+      tags: [Bookmarks]
+      summary: List bookmarks for an audiobook
+      parameters:
+        - $ref: '#/components/parameters/AudiobookId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: A paginated list of bookmarks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkListResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags: [Bookmarks]
+      summary: Create a bookmark for an audiobook
+      parameters:
+        - $ref: '#/components/parameters/AudiobookId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookmarkCreateRequest'
+      responses:
+        '201':
+          description: Bookmark created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /bookmarks/{bookmarkId}:
+    get:
+      tags: [Bookmarks]
+      summary: Get a bookmark
+      parameters:
+        - $ref: '#/components/parameters/BookmarkId'
+      responses:
+        '200':
+          description: Bookmark
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags: [Bookmarks]
+      summary: Update a bookmark
+      parameters:
+        - $ref: '#/components/parameters/BookmarkId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookmarkUpdateRequest'
+      responses:
+        '200':
+          description: Bookmark updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags: [Bookmarks]
+      summary: Delete a bookmark
+      parameters:
+        - $ref: '#/components/parameters/BookmarkId'
+      responses:
+        '204':
+          description: Bookmark deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /creator/audiobooks:
+    post:
+      tags: [Creator]
+      summary: Create a new audiobook (creator)
+      description: Requires creator role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatorAudiobookCreateRequest'
+      responses:
+        '201':
+          description: Audiobook created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Audiobook'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /creator/audiobooks/{audiobookId}:
+    patch:
+      tags: [Creator]
+      summary: Update audiobook metadata (creator)
+      description: Requires creator role and ownership.
+      parameters:
+        - $ref: '#/components/parameters/AudiobookId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatorAudiobookUpdateRequest'
+      responses:
+        '200':
+          description: Audiobook updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Audiobook'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags: [Creator]
+      summary: Delete an audiobook draft (creator)
+      description: Requires creator role; only drafts can be deleted.
+      parameters:
+        - $ref: '#/components/parameters/AudiobookId'
+      responses:
+        '204':
+          description: Audiobook deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Limit:
+      in: query
+      name: limit
+      description: Page size
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+    Cursor:
+      in: query
+      name: cursor
+      description: Cursor for pagination
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 200
+    AudiobookId:
+      in: path
+      name: audiobookId
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 64
+    BookmarkId:
+      in: path
+      name: bookmarkId
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 64
+
+  responses:
+    UnauthorizedError:
+      description: Missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: UNAUTHORIZED
+            message: Missing or invalid token
+            requestId: 6f6c1ad7-2fe0-4a0b-8b2a-5c17d0c1b9d0
+    ForbiddenError:
+      description: Authenticated but not allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: FORBIDDEN
+            message: Insufficient permissions
+            requestId: 4b2c0e10-0d58-4d1a-98e6-6bda6c8a9cc1
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: NOT_FOUND
+            message: Resource not found
+            requestId: 51c6e4d5-5a7c-4b5d-9d4a-59d1f0c3a1aa
+    ValidationError:
+      description: Input validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: VALIDATION_ERROR
+            message: One or more fields are invalid
+            details:
+              - field: positionSeconds
+                issue: Must be between 0 and durationSeconds
+            requestId: 0d4d84f7-9d7a-4c26-a8a4-8a4de0f5a3c9
+    RateLimitError:
+      description: Too many requests
+      headers:
+        Retry-After:
+          description: Seconds to wait before retrying
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: RATE_LIMITED
+            message: Too many requests
+            requestId: b58d3c07-5a2f-4d61-b7d9-9a5d5a6b0c2f
+    InternalServerError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: INTERNAL_ERROR
+            message: Unexpected error
+            requestId: 8cb8b3aa-3cb3-46d2-a285-23a2d5b7fd73
+
+  schemas:
+    ErrorDetail:
+      type: object
+      additionalProperties: false
+      properties:
+        field:
+          type: string
+        issue:
+          type: string
+      required: [issue]
+
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+        requestId:
+          type: string
+          description: Correlation id for support
+      required: [code, message, requestId]
+
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 10
+          maxLength: 256
+      required: [email, password]
+
+    RefreshRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        refreshToken:
+          type: string
+          minLength: 10
+      required: [refreshToken]
+
+    AuthTokens:
+      type: object
+      additionalProperties: false
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+          enum: [Bearer]
+        expiresIn:
+          type: integer
+          description: Access token lifetime in seconds
+          minimum: 60
+      required: [accessToken, refreshToken, tokenType, expiresIn]
+
+    Audiobook:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        synopsis:
+          type: string
+          maxLength: 5000
+        language:
+          type: string
+          description: ISO language code
+        durationSeconds:
+          type: integer
+          minimum: 1
+        narratorType:
+          type: string
+          enum: [human, ai]
+        accessibility:
+          $ref: '#/components/schemas/Accessibility'
+      required: [id, title, language, durationSeconds, narratorType]
+
+    Accessibility:
+      type: object
+      additionalProperties: false
+      properties:
+        screenReaderOptimized:
+          type: boolean
+        highContrastSupported:
+          type: boolean
+        dyslexiaFriendlyTypography:
+          type: boolean
+      required: [screenReaderOptimized, highContrastSupported, dyslexiaFriendlyTypography]
+
+    PageInfo:
+      type: object
+      additionalProperties: false
+      properties:
+        limit:
+          type: integer
+        nextCursor:
+          type: string
+          nullable: true
+      required: [limit, nextCursor]
+
+    AudiobookListResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Audiobook'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+      required: [data, page]
+
+    LicenseRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        deviceId:
+          type: string
+          minLength: 1
+          maxLength: 100
+
+    LicenseResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        licenseUrl:
+          type: string
+          format: uri
+        expiresAt:
+          type: string
+          format: date-time
+      required: [licenseUrl, expiresAt]
+
+    ProgressUpdateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        positionSeconds:
+          type: integer
+          minimum: 0
+        deviceId:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required: [positionSeconds, deviceId]
+
+    Progress:
+      type: object
+      additionalProperties: false
+      properties:
+        audiobookId:
+          type: string
+        positionSeconds:
+          type: integer
+          minimum: 0
+        updatedAt:
+          type: string
+          format: date-time
+      required: [audiobookId, positionSeconds, updatedAt]
+
+    Bookmark:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        audiobookId:
+          type: string
+        positionSeconds:
+          type: integer
+          minimum: 0
+        label:
+          type: string
+          maxLength: 120
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, audiobookId, positionSeconds, createdAt]
+
+    BookmarkCreateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        positionSeconds:
+          type: integer
+          minimum: 0
+        label:
+          type: string
+          maxLength: 120
+      required: [positionSeconds]
+
+    BookmarkUpdateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        label:
+          type: string
+          maxLength: 120
+          nullable: true
+      required: [label]
+
+    BookmarkListResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bookmark'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+      required: [data, page]
+
+    CreatorAudiobookCreateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        synopsis:
+          type: string
+          maxLength: 5000
+        language:
+          type: string
+          minLength: 2
+          maxLength: 10
+        narratorType:
+          type: string
+          enum: [human, ai]
+      required: [title, language, narratorType]
+
+    CreatorAudiobookUpdateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        synopsis:
+          type: string
+          maxLength: 5000
+      minProperties: 1
