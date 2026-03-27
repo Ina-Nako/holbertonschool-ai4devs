@@ -1,0 +1,61 @@
+version: 1
+
+languages:
+  python:
+    style_guide: black
+    type_hints: true
+    docstring_style: google
+    testing_framework: pytest
+    guardrails:
+      - prefer_small_pure_functions
+      - include_edge_case_tests
+      - avoid_bare_except
+
+  javascript:
+    style_guide: airbnb
+    semicolons: true
+    prefer: const
+    strict_equality: true
+    guardrails:
+      - validate_external_input
+      - no_unused_variables
+      - explicit_error_messages
+
+  markdown:
+    heading_style: atx
+    line_length: 100
+    require_sections:
+      - objective
+      - steps
+      - acceptance_criteria
+
+workflows:
+  code_review:
+    enabled: true
+    trigger: manual
+    focus_areas:
+      - security
+      - performance
+      - readability
+      - regression_risk
+    output_template:
+      - summary
+      - findings
+      - suggested_fixes
+
+  doc_generator:
+    enabled: true
+    trigger: on_request
+    targets:
+      - functions
+      - endpoints
+      - setup_files
+    requirements:
+      - include_inputs_outputs
+      - include_examples
+      - keep_under_200_words_per_section
+
+defaults:
+  ask_for_clarification_if_requirements_conflict: true
+  preserve_existing_file_style: true
+  avoid_unrequested_refactors: true
